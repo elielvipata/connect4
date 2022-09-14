@@ -1,16 +1,16 @@
-/Users/eliel/Downloads/hw4/src/Lib.hs:
-  hash: 11d6d255cb397fa45980eb516ea685146565d9de2108c4eea356ea41db8364be
+/Users/eliel/Downloads/hw4 - solutions/hw4.cabal:
+  hash: b9a4e84432751da3e9c19e9e5fcdf27f9d9d548456c9c66982080e32cd59a324
+/Users/eliel/Downloads/hw4 - solutions/.stack-work/dist/x86_64-osx/Cabal-3.2.1.0/build/autogen/Paths_hw4.hs:
+  hash: 509d21ff239b95eae5ae6c4248005af5be47ddd5ddf74a6dffeeb9f6b372fd9d
+/Users/eliel/Downloads/hw4 - solutions/package.yaml:
+  hash: 9e7b9e4f3f2008fa2fb5f60a5ccb07c55aaa2fffb0dee9d5674b7e297ef0700d
 /Users/eliel/.stack/programs/x86_64-osx/ghc-8.10.6/lib/ghc-8.10.6/include/ghcversion.h:
   hash: cfd773ce66008a4a1938878e532cd9eb2c46ae6b27c5b8db821c7a43174df0bc
-/Users/eliel/Downloads/hw4/README.md:
+/Users/eliel/Downloads/hw4 - solutions/src/Lib.hs:
+  hash: 11d6d255cb397fa45980eb516ea685146565d9de2108c4eea356ea41db8364be
+/Users/eliel/Downloads/hw4 - solutions/README.md:
   hash: 70af6d8d051f3d04ad0f2493fe778fc0f677ac36c96a955ca8fd3b7c996fcb4b
-/Users/eliel/Downloads/hw4/package.yaml:
-  hash: 2aa7d52525788be41ea3a7d403c4dc230c8d3993375461a40aecc602b9dba4d4
-/Users/eliel/Downloads/hw4/.stack-work/dist/x86_64-osx/Cabal-3.2.1.0/build/autogen/Paths_hw4.hs:
-  hash: 907038e1821ef2368f744e5c675dcd7bf7787d5c2909b29c38f1eeea160305d5
-/Users/eliel/Downloads/hw4/.stack-work/dist/x86_64-osx/Cabal-3.2.1.0/build/autogen/cabal_macros.h:
-  hash: c7e34a17f9a2423bcba7b1fd882e65d03d9ccfe990bf5b707d7a10265d3ee83c
-/Users/eliel/Downloads/hw4/ChangeLog.md:
+/Users/eliel/Downloads/hw4 - solutions/ChangeLog.md:
   hash: c4f4c3032aa5549ab4f23083bd28b0e271d1f394070b0771ac4f77b415290850
-/Users/eliel/Downloads/hw4/hw4.cabal:
-  hash: b9a4e84432751da3e9c19e9e5fcdf27f9d9d548456c9c66982080e32cd59a324
+/Users/eliel/Downloads/hw4 - solutions/.stack-work/dist/x86_64-osx/Cabal-3.2.1.0/build/autogen/cabal_macros.h:
+  hash: 44ce1de79cc0d5203414d69c5de473e0363edc327920b3ff88b978a4061aa022

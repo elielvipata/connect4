@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,1,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "/Users/eliel/Downloads/hw4/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/bin"
-libdir     = "/Users/eliel/Downloads/hw4/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/lib/x86_64-osx-ghc-8.10.6/hw4-0.1.0.0-EJzyUwmeHl36F9ws6CGDrX-hw4-exe"
-dynlibdir  = "/Users/eliel/Downloads/hw4/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/lib/x86_64-osx-ghc-8.10.6"
-datadir    = "/Users/eliel/Downloads/hw4/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/share/x86_64-osx-ghc-8.10.6/hw4-0.1.0.0"
-libexecdir = "/Users/eliel/Downloads/hw4/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/libexec/x86_64-osx-ghc-8.10.6/hw4-0.1.0.0"
-sysconfdir = "/Users/eliel/Downloads/hw4/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/etc"
+bindir     = "/Users/eliel/Downloads/hw4 - solutions/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/bin"
+libdir     = "/Users/eliel/Downloads/hw4 - solutions/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/lib/x86_64-osx-ghc-8.10.6/hw4-0.1.0.0-EJzyUwmeHl36F9ws6CGDrX-hw4-exe"
+dynlibdir  = "/Users/eliel/Downloads/hw4 - solutions/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/lib/x86_64-osx-ghc-8.10.6"
+datadir    = "/Users/eliel/Downloads/hw4 - solutions/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/share/x86_64-osx-ghc-8.10.6/hw4-0.1.0.0"
+libexecdir = "/Users/eliel/Downloads/hw4 - solutions/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/libexec/x86_64-osx-ghc-8.10.6/hw4-0.1.0.0"
+sysconfdir = "/Users/eliel/Downloads/hw4 - solutions/.stack-work/install/x86_64-osx/d3db1575f8728342abcd48f6366e7287884b08e8874138dfaa083cde264dfbf2/8.10.6/etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "hw4_bindir") (\_ -> return bindir)

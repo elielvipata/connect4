@@ -44,15 +44,15 @@
   (major1) == 2 && (major2) == 2 && (minor) <= 2)
 #endif /* MIN_VERSION_mtl */
 
-/* tool gcc-12.0.5 */
+/* tool gcc-13.0.0 */
 #ifndef TOOL_VERSION_gcc
-#define TOOL_VERSION_gcc "12.0.5"
+#define TOOL_VERSION_gcc "13.0.0"
 #endif /* TOOL_VERSION_gcc */
 #ifndef MIN_TOOL_VERSION_gcc
 #define MIN_TOOL_VERSION_gcc(major1,major2,minor) (\
-  (major1) <  12 || \
-  (major1) == 12 && (major2) <  0 || \
-  (major1) == 12 && (major2) == 0 && (minor) <= 5)
+  (major1) <  13 || \
+  (major1) == 13 && (major2) <  0 || \
+  (major1) == 13 && (major2) == 0 && (minor) <= 0)
 #endif /* MIN_TOOL_VERSION_gcc */
 
 /* tool ghc-8.10.6 */

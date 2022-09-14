@@ -1,8 +1,8 @@
 -- CS 456 Homework 4
 -- Due date: 11/05/2021 by 6:00PM
 
--- Name: Eliel Vipata
--- Email: vkilembo@purdue.edu
+-- Name: YOUR NAME HERE
+-- Email: YOUR EMAIL HERE
 
 -- ASSIGNMENT INSTRUCTIONS:
 -- ========================================================================
@@ -20,12 +20,8 @@
 -- Part 1: Monads [25pts]
 
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
-module Main where
-
-
-import Lib
 
 import Control.Monad.State
 import Control.Monad.Trans
@@ -34,80 +30,86 @@ import Control.Monad.Writer
 import Control.Monad.Except
 import Data.List
 import Data.Maybe
+-- import Control.Monad.Maybe
 import Control.Applicative
 import Test.QuickCheck
 
+-- Monad warm ups:
 
 -- Question 1 [1pt]: Define a function that increments a counter
 -- implemented using the State monad. Do not use 'do' notation, use
 -- the bind operation instead (>>=).
 
-
 incCount :: MonadState Int m => m ()
-incCount =  get >>= \x -> put(x+1)
+incCount = get >>= \s -> put (s + 1)
 
+-- [execState :: State s a -> s -> s] is a function that evaluates a
+-- monadic value in some initial state and returns the resulting final
+-- state. Here are some examples of incCount:
+-- * execState incCount 0 = 1
+-- * execState incCount 10 = 11
+-- * execState incCount 41 = 42
 
--- -- -- [execState :: State s a -> s -> s] is a function that evaluates a
--- -- -- monadic value in some initial state and returns the resulting final
--- -- -- state. Here are some examples of incCount:
--- -- -- * execState incCount 0 = 1
--- -- -- * execState incCount 10 = 11
--- -- -- * execState incCount 41 = 42
+-- Question 2 [1pt]: Define a function that checks if the value stored
+-- in the current state is less than 42, incrementing it if so, and
+-- throwing an error otherwise. Do not use 'do' notation, use
+-- the bind operation instead (>>=).
 
-
--- -- Question 2 [1pt]: Define a function that checks if the value stored
--- -- in the current state is less than 42, incrementing it if so, and
--- -- throwing an error otherwise. Do not use 'do' notation, use
--- -- the bind operation instead (>>=).
-
+-- My Version that explains the error
+-- safeInc :: (MonadState Int m, MonadError String m) => m ()
+-- safeInc = get >>= \s -> if s < 42 then put (s+1) else throwError "state overflowed"
 
 safeInc :: (MonadState Int m, MonadError () m) => m ()
-safeInc =  get >>= \x->if x < 42 then put(x+1) else throwError ()
--- safeInc = error "Fill In Here"
+safeInc = get >>= \s -> if s < 42 then put (s+1) else throwError ()
 
--- -- [execStateT :: Monad m => State s a -> s -> m s] is a function that
--- -- evaluates a monadic value in some initial state and returns the
--- -- resulting final state, wrapped with any remaining monadic bits.
--- -- [runExcept :: Except e a -> Either e a] is a function that lifts a
--- -- value living in the Exception Monad to a Either value.
--- -- Here are some examples of safeCount:
--- -- * runExcept (execStateT safeInc 0) = Right 1
--- -- * runExcept (execStateT safeInct 10) = Right 11
--- -- * runExcept (execStateT safeInc 42) = Left
+-- [execStateT :: Monad m => State s a -> s -> m s] is a function that
+-- evaluates a monadic value in some initial state and returns the
+-- resulting final state, wrapped with any remaining monadic bits.
+-- [runExcept :: Except e a -> Either e a] is a function that lifts a
+-- value living in the Exception Monad to a Either value.
+-- Here are some examples of safeCount:
+-- * runExcept (execStateT safeInc 0) = Right 1
+-- * runExcept (execStateT safeInct 10) = Right 11
+-- * runExcept (execStateT safeInc 42) = Left
 
 
+-- Question 3 [1pt]: Define a function that, in addition to performing
+-- a safe incrememnt operation, logs the event by adding the string
+-- "Safely Updated Counter! " to a log implemented using the Writer
+-- monad. Do not use 'do' notation, use the bind operation instead
+-- (>>=).
 
 safeIncLog :: (MonadState Int m, MonadError () m, MonadWriter String m) => m ()
-safeIncLog = get >>= \x->if x < 42 then tell "Safely Updated Counter" >> safeInc else throwError ()
+safeIncLog = tell "Safely Updated Counter" >> safeInc
 
--- -- [runExcept :: Except e a -> Either e a] is a function that lifts a
--- -- value living in the Exception Monad to a Either value.
--- -- Here are some examples of safeCount:
--- -- * runWriter (runExceptT (execStateT safeIncLog 0)) = (Right 1,"Safely Updated Counter!")
--- -- * runWriter (runExceptT (execStateT (safeIncLog >> safeIncLog >> safeIncLog) 10)) = (Right 13, "Safely Updated Counter! Safely Updated Counter! Safely Updated Counter! ")
--- -- * runWriter (runExceptT (execStateT (safeIncLog) 42)) = (Left (),"")
--- -- * runWriter (runExceptT (execStateT (safeIncLog >> safeIncLog) 41)) = (Left (),"Safely Updated Counter!")
+-- [runExcept :: Except e a -> Either e a] is a function that lifts a
+-- value living in the Exception Monad to a Either value.
+-- Here are some examples of safeCount:
+-- * runWriter (runExceptT (execStateT safeIncLog 0)) = (Right 1,"Safely Updated Counter!")
+-- * runWriter (runExceptT (execStateT (safeIncLog >> safeIncLog >> safeIncLog) 10)) = (Right 13, "Safely Updated Counter! Safely Updated Counter! Safely Updated Counter! ")
+-- * runWriter (runExceptT (execStateT (safeIncLog) 42)) = (Left (),"")
+-- * runWriter (runExceptT (execStateT (safeIncLog >> safeIncLog) 41)) = (Left (),"Safely Updated Counter!")
 
--- -- Question 4 [2pts]: Write variants of the above functions using the
--- -- monadic 'do' notation.
+-- Question 4 [2pts]: Write variants of the above functions using the
+-- monadic 'do' notation.
 
 incCount' :: MonadState Int m => m ()
 incCount' = do
-    n <- get
-    put(n+1)
-
+  s <- get
+  put (s + 1)
 
 safeInc' :: (MonadState Int m, MonadError () m) => m ()
-safeInc' =  do
-        n <- get 
-        if | n < 42 -> put(n+1)
-           | otherwise -> throwError ()
+safeInc' = do
+  s <- get
+  if s < 42
+    then put (s+1)
+    else throwError ()
+
 
 safeIncLog' :: (MonadState Int m, MonadError () m, MonadWriter String m) => m ()
 safeIncLog' = do
-            n <- get
-            if | n < 42 -> tell "Safely updated counter" >> safeInc'
-                | otherwise -> throwError()
+  tell "Safely Updated Counter"
+  safeInc
 
 -- In the first part of the homework, you will use monads to write an
 -- interactive two-player game of Connect Four with users. Per
@@ -143,16 +145,21 @@ type Row = [Entry]
 -- [Y], or a red checker [R]:
 data Entry = E | Y | R deriving (Ord, Eq)
 
--- For example, here is a typical board:
-exBoard :: Board
-exBoard = [[E,E,E,E,E,E,E], 
-           [E,E,E,E,E,E,E],
-           [E,E,E,E,E,E,E],
-           [E,E,E,R,R,E,E],
-           [E,E,Y,Y,R,E,E],
-           [E,Y,Y,R,R,R,Y]]
+revv b = reverse [ reverse b' | b' <- b]
 
+getSecondDiag b = filter (\ l -> length l > 3) $ [
+  [ b !! row !! col | (row, col) <- zip ([0 .. rows - 1]) ([p .. cols - 1]) ]
+  | p <- reverse [0 .. cols - 1]]
+  ++ [
+  [ revv b !! row !! col | (row, col) <- zip ([0 .. rows - 1]) ([p .. cols - 1]) ]
+  | p <- reverse [0 .. cols - 1]]
 
+getFirstDiag b = filter (\ l -> length l > 3) $ [
+  [ b !! row !! col | (row, col) <- zip [0 .. rows - 1] (reverse [0 .. p]) ]
+  | p <- [0 .. cols - 1]]
+  ++ [
+  [ revv b !! row !! col | (row, col) <- zip [0 .. rows - 1] (reverse [0 .. p]) ]
+  | p <- [0 .. cols - 1]]
 
 exWinBoard :: Board
 exWinBoard = [[E,E,E,E,E,E,E],
@@ -180,122 +187,155 @@ showBoard b =
        line     = [replicate cols '-']
        nums     = [take cols ['0'..]]
 
+-- For example, [showBoard exBoard] gives the following output:
+--    .......
+--    .......
+--    .......
+--    ...XX..
+--    ..OOX..
+--    .OOXXXO
+--    -------
+--    0123456
+
+-- Question 5 [10pts]: Write a [winningBoard] function that checks
+-- whether a player has won the game, i.e. whether there is a
+-- horizontal, vertical, or diagonal line of four of the same color
+-- checker. This function should throw an error when there is not a
+-- winner, and return the [Entry] of the winning player otherwise.
+bisect :: Int -> [a] -> [[a]]
+bisect 0 _ = []
+bisect n l
+  | length l < n = []
+  | otherwise = take n l : bisect n (drop 1 l)
+
+checkAllSame :: [Entry] -> Maybe Entry
+checkAllSame l =
+  if all (\ b -> b == R) l
+  then return R
+        else if all (\b -> b == Y) l
+             then return Y
+             else Nothing
+
+winningDiagonal ::  Board -> Maybe Entry
+winningDiagonal b =
+  let bissectFstDiag = flatten $ map (bisect 4) (getFirstDiag b) in
+  let bissectSndDiag = flatten $ map (bisect 4) (getSecondDiag b) in
+    (afromList $ map checkAllSame bissectFstDiag)
+    <|>
+    (afromList $ map checkAllSame bissectSndDiag)
+
+flatten :: [[a]] -> [a]
+flatten [] = []
+flatten (x : xs) = x ++ flatten xs
+
+afromList :: [Maybe a] -> Maybe a
+afromList [] = Nothing
+afromList (x : xs) = x <|> afromList xs
+
+winningHorizontal :: Board -> Maybe Entry
+winningHorizontal b =
+  let bissectedBoard = flatten $ map (bisect 4) b in
+    afromList $ map checkAllSame bissectedBoard
+
+winningVertical :: Board -> Maybe Entry
+winningVertical b = winningHorizontal $ transpose b
+
+winningBoard :: MonadError () m => Board -> m Entry
+winningBoard b = case winningVertical b <|> winningHorizontal b <|> winningDiagonal b of
+  Nothing -> throwError ()
+  Just x -> return x
+
+-- Question 6 [3pts]: Write a [makeMove] function to take a move by dropping a checker of
+-- the input Entry into the column specified by the integer
+-- argument. The inserted piece should fall straight down, occupying
+-- the lowest available space within the column. In the case that the
+-- column is completely full, the function should throw an error.
+
+replaceNth :: Int -> a -> [a] -> [a]
+replaceNth _ _ [] = []
+replaceNth n newVal (x:xs)
+  | n == 0 = newVal:xs
+  | otherwise = x:replaceNth (n-1) newVal xs
+
+-- First Int is which row
+-- Second Int is which col
+updateBoard :: Board -> Entry -> Int -> Int -> Board
+updateBoard b e row col = replaceNth row (replaceNth col e (b !! row)) b
+
+getFirstE :: [(Entry, Int)] -> Maybe Int
+getFirstE [] = Nothing
+getFirstE ((x, i) : xs) = if x == E then Just i else getFirstE xs
 
 
-
-isMem::(Eq a) => a -> [a]->Bool
-isMem y ys = foldl(\acc x -> if x == y then True else acc) False ys
-
-totalVal::(Eq a) => a ->[a]->Int
-totalVal y ys = foldl(\acc x -> if x == y then acc+1 else acc) 0 ys
-
-winningRow::[Entry]->Bool
-winningRow xs = totalVal Y xs == 4 || totalVal R xs == 4
-
-getNthElement::[Entry]->Int->Entry
-getNthElement xs y = xs !! y
-
-winningRow'::Row->Int->Bool
-winningRow' a b = getNthElement a b == getNthElement a (b+1) &&
-                  getNthElement a b == getNthElement a (b+2) &&
-                  getNthElement a b == getNthElement a (b+3)
-
-getNthRow::Board->Int->Row
-getNthRow xs y = xs !! y
-
-winningCol'::Board->Int->Int->Bool
-winningCol' a b c = (getNthElement(getNthRow a b) c == getNthElement(getNthRow a (b+1)) c)&&
-                    (getNthElement(getNthRow a b) c == getNthElement(getNthRow a (b+2)) c) &&
-                    (getNthElement(getNthRow a b) c == getNthElement(getNthRow a (b+3)) c)
-
-totalColVal::Board->Entry->Int->Int
-totalColVal xs a y = foldl(\acc x -> if getNthElement x y  == a then acc+1 else acc) 0 xs
+updateFirst :: [Entry] -> Entry -> Maybe [Entry]
+updateFirst l en =
+  let revl = reverse l in
+  case getFirstE (zip revl [0..]) of
+    Nothing -> Nothing
+    Just pos' -> Just $ reverse $ replaceNth pos' en revl
 
 
-winningCol::Board->Int->Bool
-winningCol xs c = totalColVal xs Y c == 4 || totalColVal xs R c ==4 
+makeMove :: MonadError () m => Board -> Entry -> Int -> m Board
+makeMove b e col =
+  if col > cols - 1
+  then throwError ()
+  else
+    let transb = transpose b in
+    let updt = transb !! col in
+    case updateFirst updt e of
+         Nothing -> throwError ()
+         Just b' -> return $ transpose $ replaceNth col b' transb
 
-getNthDiagonal::Board->Int->Int->Entry
-getNthDiagonal xs a b = (getNthRow xs a) !! b
+-- Question 7 [2pts]: Write a monadic [playMove] function that applies [makeMove] to
+-- update the current game state, which consists of the current board
+-- and an [Entry] value representing the player who will make the next
+-- move.
+playMove :: (MonadState (Board, Entry) m, MonadError () m) => Int -> m ()
+playMove i = do
+  (b, e) <- get
+  b' <- makeMove b e i
+  let nextMove = if e == R then Y else R
+  put (b', nextMove)
 
-winningRightDiagonal::Board->Entry->Int->Int->Bool
-winningRightDiagonal xs a y z = rc1 == a && rc2 == a && rc3 == a && rc4 == a
-                              where rc1 = getNthDiagonal xs y z
-                                    rc2 = getNthDiagonal xs (y+1) (z+1)
-                                    rc3 = getNthDiagonal xs (y+2) (z+2)
-                                    rc4 = getNthDiagonal xs (y+3) (z+3)
+-- The playMove function uses the [runExcept] and [execStateT]
+-- functions from the first three questions to turn the monadic game
+-- state into a pure value:
+playMove' :: Board -> Entry -> Int -> Either () (Board, Entry)
+playMove' b e i = runExcept $ execStateT (playMove i) (b, e)
 
-winningLeftDiagonal::Board->Entry->Int->Int->Bool
-winningLeftDiagonal xs a y z = rc1 == a && rc2 == a && rc3 == a && rc4 == a
-                              where rc1 = getNthDiagonal xs y z
-                                    rc2 = getNthDiagonal xs (y+1) (z-1)
-                                    rc3 = getNthDiagonal xs (y+1) (z-2)
-                                    rc4 = getNthDiagonal xs (y+3) (z-3)
+-- Question 8 [5pts]:
+-- Define a [playGame] function that:
+-- 1) displays the current board,
+-- 2) queries the user for the next move, It may be helpful to use the [Read] typeclass can be used to convert the input string to an [Int].
+-- 3) Uses [playMove] to update the game state:
+-- 3a) If the resulting board is a winner, the identity of the winner should be printed
+-- 3b) If there is no winner on the current board, [playGame] should recursive, allowing the game to continue
+-- 3c) In the case that an invalid move was supplied, the game state should remain unchanged, and the game should continue as in 3b
 
-checkColumns::Board->Bool
-checkColumns b = winningCol b 0 || winningCol b 1 || winningCol b 2 || winningCol b 3 || winningCol b 4 || winningCol b 5 || winningCol b 6
+playGame' :: Board -> Entry -> IO ()
+playGame' b e = do
+  showBoard b
+  putStr "Insert action: "
+  x <- readLn
+  case playMove' b e x of
+    Left () ->
+      putStrLn "Ilegal Move!"
+    Right (board, entry) ->
+      case runExcept $ winningBoard board of
+        Left () -> playGame' board entry
+        Right e -> do
+          showBoard b
+          putStrLn $ show e ++ " Won!"
 
-checkRows::Board->Bool
-checkRows b = winningRow(getNthRow b 0) ||winningRow(getNthRow b 1) ||winningRow(getNthRow b 2) ||winningRow(getNthRow b 3) ||winningRow(getNthRow b 4) ||winningRow(getNthRow b 5)
+-- [playGame] starts a game of Connect Four with the expected initial values.
+playGame :: IO ()
+playGame = playGame' initialBoard R
 
-checkRightDiagonals::Board->Entry->Bool
-checkRightDiagonals b c = winningRightDiagonal b c 0 0 || winningRightDiagonal b c 0 1 || winningRightDiagonal b c 0 2 || winningRightDiagonal b c 0 3 ||
-                  winningRightDiagonal b c 1 0 || winningRightDiagonal b c 1 1 || winningRightDiagonal b c 1 2 || winningRightDiagonal b c 1 3 ||
-                   winningRightDiagonal b c 2 0 || winningRightDiagonal b c 2 1 || winningRightDiagonal b c 2 2 || winningRightDiagonal b c 2 3 
-
-checkLeftDiagonals::Board->Entry->Bool
-checkLeftDiagonals b c = winningRightDiagonal b c 0 6 || winningRightDiagonal b c 0 5 || winningRightDiagonal b c 0 4 || winningRightDiagonal b c 0 3 ||
-                  winningRightDiagonal b c 1 6 || winningRightDiagonal b c 1 5 || winningRightDiagonal b c 1 4 || winningRightDiagonal b c 1 3 ||
-                   winningRightDiagonal b c 2 6 || winningRightDiagonal b c 2 5 || winningRightDiagonal b c 2 4 || winningRightDiagonal b c 2 3 
-
-
-checkDiagonals::Board->Bool
-checkDiagonals b = checkLeftDiagonals b Y || checkLeftDiagonals b R || checkRightDiagonals b Y || checkRightDiagonals b R
-
-win::Board->Bool
-win b  = checkColumns b == True || checkRows b == True ||  checkDiagonals b == True
-
-winningBoard :: (MonadError () m, MonadState (m Entry) m) => Board -> m Entry
-winningBoard b = get >>= \x -> if win b == True then x else throwError ()
-
-
--- -- Question 7 [2pts]: Write a monadic [playMove] function that applies [makeMove] to
--- -- update the current game state, which consists of the current board
--- -- and an [Entry] value representing the player who will make the next
--- -- move.
--- playMove :: (MonadState (Board, Entry) m, MonadError () m) => Int -> m ()
--- playMove i = error "Fill In Here"
-
--- -- The playMove function uses the [runExcept] and [execStateT]
--- -- functions from the first three questions to turn the monadic game
--- -- state into a pure value:
--- playMove' :: Board -> Entry -> Int -> Either () (Board, Entry)
--- playMove' b e i = runExcept $ execStateT (playMove i) (b, e)
-
--- -- Question 8 [5pts]:
--- -- Define a [playGame] function that:
--- -- 1) displays the current board,
--- -- 2) queries the user for the next move, It may be helpful to use the [Read] typeclass can be used to convert the input string to an [Int].
--- -- 3) Uses [playMove] to update the game state:
--- -- 3a) If the resulting board is a winner, the identity of the winner should be printed
--- -- 3b) If there is no winner on the current board, [playGame] should recursive, allowing the game to continue
--- -- 3c) In the case that an invalid move was supplied, the game state should remain unchanged, and the game should continue as in 3b
-
--- playGame' :: Board -> Entry -> IO ()
--- playGame' b e = error "Fill In Here"
-
--- -- [playGame] starts a game of Connect Four with the expected initial values.
--- playGame :: IO ()
--- playGame = playGame' initialBoard R
-              
-
-
--- PART 2
+-- Part 2: Type Inference for the Lambda Calculus [20pts]
 data SimpleType =
        TBool
      | TyArrow SimpleType SimpleType
      | TyVar Int
-     | Empty
       deriving (Eq)
 
 instance Show SimpleType where
@@ -330,7 +370,7 @@ instance Show STLCExp where
 -- Environments map variable names to types
 type LamTypCtxt = [(String, SimpleType)]
 
--- Extending an Environment with a new variable typing
+-- Extend ing an Environment with a new variable typing
 extendLTC :: String -> SimpleType -> LamTypCtxt -> LamTypCtxt
 extendLTC x ty env = (x, ty) : env
 
@@ -367,67 +407,54 @@ lookupSTVar x = do
   env <- ask -- Get the current environment
   case lookup x env of
     Just e  -> return e
-    Nothing -> Control.Monad.Except.throwError $ UnBoundVar x
-
-
-processBoolean::STLCExp->Bool
-processBoolean (BoolExp True) = True
-processBoolean (BoolExp False) = False
-
-getSimpleType::STLCExp->SimpleType
-getSimpleType (Lambda a b c) = b
-getSimpleType (App a b) = TyArrow (getSimpleType a) (getSimpleType b) 
-getSimpleType (BoolExp _) = TBool
-getSimpleType (IfExp a b c) = if processBoolean a then getSimpleType b else getSimpleType b
-getSimpleType (STVar a) = (TyVar (read a :: Int)) 
-
+    Nothing -> throwError $ UnBoundVar x
 
 -- Question 9 [5pts]: Write a constraint-based typechecker for the
 -- simply typed lambda calculus with booleans, following the typing
 -- rules included in the comments above each case. Make sure to return
 -- an appropriate type error in the case that a rule does not apply.
 inferConstraints :: STLCExp -> InferM (SimpleType, TypeConstraints)
+
+
 --  ----------------------  CT-True
 --    Γ ⊢ true : Bool | [ ]
 
 --  ----------------------  CT-False
 --    Γ ⊢ false : Bool | [ ]
-inferConstraints (BoolExp _) =  return (TBool, [])                            
+inferConstraints (BoolExp True) = return (TBool, [])
+inferConstraints (BoolExp False) = return (TBool, [])
 
--- --   Γ ⊢ ec : Tc | Cc     Γ ⊢ et : Tt | Ct     Γ ⊢ ee : Te | Ce
--- --  ----------------------  CT-If
--- --    Γ ⊢ if ec then et else ee : Tt | [Tc = Bool, Tt = Te] ++ Cc ++ Ct ++ Ce
--- inferConstraints (IfExp ec et ee) = return (fst(inferConstraints(et)),[TypeEq fst(inferConstraints(cc) TBool, fst(inferConstraints(et) fst(inferConstraints(ee))))] ++ snd(inferConstraints(et)) ++ snd(inferConstraints(ec)) ++ snd(inferConstraints(ee))) 
-
+--   Γ ⊢ ec : Tc | Cc     Γ ⊢ et : Tt | Ct     Γ ⊢ ee : Te | Ce
+--  ----------------------  CT-If
+--    Γ ⊢ if ec then et else ee : Tt | [Tc = Bool, Tt = Te] ++ Cc ++ Ct ++ Ce
 inferConstraints (IfExp ec et ee) = do
-                  (tc, cc) <- inferConstraints (ec)
-                  (tt, ct) <- inferConstraints (et)
-                  (te, ce) <- inferConstraints (ee)
-                  return (tt, [TypeEq tc TBool, TypeEq tt te] ++ cc ++ ct ++ ce)
--- --   Γ [x --> ty] ⊢ e : ty2 | C
--- --  ------------------------------  CT-Abs
--- --    Γ ⊢ \x:ty. e : ty -> ty2 | C
--- inferConstraints (Lambda x ty e) = return (TyArrow ty fst(inLamTypCtxt x ty (inferConstraints e)), snd(inLamTypCtxt x ty (inferConstraints e)))
+  (tc, cc) <- inferConstraints (ec)
+  (tt, ct) <- inferConstraints (et)
+  (te, ce) <- inferConstraints (ee)
+  return (tt, [TypeEq tc TBool, TypeEq tt te] ++ cc ++ ct ++ ce)
+
+--   Γ [x --> ty] ⊢ e : ty2 | C
+--  ------------------------------  CT-Abs
+--    Γ ⊢ \x:ty. e : ty -> ty2 | C
 inferConstraints (Lambda x ty e) = do
   (ty2, c) <- inLamTypCtxt x ty (inferConstraints e)
   return (TyArrow ty ty2, c)
 
--- --   Γ ⊢ e1 : ty1 | C1          Γ ⊢ e2 : ty2 | C2            fresh X
--- --  -----------------------------------------------------------------  CT-Abs
--- --    Γ ⊢ e1 e2 : X | [ty1 = ty2 -> X] ++ C1 ++ C2
--- inferConstraints (App e1 e2) = do
+--   Γ ⊢ e1 : ty1 | C1          Γ ⊢ e2 : ty2 | C2            fresh X
+--  -----------------------------------------------------------------  CT-Abs
+--    Γ ⊢ e1 e2 : X | [ty1 = ty2 -> X] ++ C1 ++ C2
 inferConstraints (App e1 e2) = do
-                  (ty1, c1) <- inferConstraints e1
-                  (ty2, c2) <- inferConstraints e2
-                  n <- getFresh
-                  let ty = TyVar n in return(ty,[TypeEq ty1 (TyArrow ty2 ty)] ++ c1 ++ c2 )
+  (ty1, c1) <- inferConstraints e1
+  (ty2, c2) <- inferConstraints e2
+  n <- getFresh
+  let ty = TyVar n in
+    return (ty, [TypeEq ty1 (TyArrow ty2 ty)] ++ c1 ++ c2)
 --    Γ(x) = T
 --  -------------- CT-Var
 --    Γ ⊢ x : T
 inferConstraints (STVar x) = do
-                            n <- lookupSTVar x
-                            return (n , [])
-
+  ty <- lookupSTVar x
+  return (ty, [])
 
 -- runInfer takes the starting value of fresh variables, a typing
 -- context, and an expression to do constraint-based typing on
@@ -446,72 +473,185 @@ type TypeSubst = [(Int, SimpleType)]
 -- Questions 10-11 [2 x 2pts]: Implement the type substitution application and type
 -- substitution functions discussed in class.
 
-getIntType::SimpleType->Int
-getIntType (TyVar a) = a
-
-
-getType::SimpleType->Int
-getType (TyArrow a _) = getIntType(a)
-getType (TyArrow _ b) = getIntType(b)
-getType (TyVar a) = a
-
-getSub::TypeSubst->Int->SimpleType
-getSub [] _ = Empty
-getSub ((b,c):xs) a = if a == b then c else getSub xs a
+findSubst :: Int -> TypeSubst -> Maybe SimpleType
+findSubst _ [] = Nothing
+findSubst i ((i', ty) : xs) =
+  if i == i' then Just ty
+  else findSubst i xs
 
 applyTypeSubst :: TypeSubst -> SimpleType -> SimpleType
-applyTypeSubst sigma  ty = if (getSub sigma (getType ty)) == Empty then TyVar (getType ty) else (getSub sigma (getType ty))
-applyTypeSubst sigma (TyArrow a b) = (TyArrow (applyTypeSubst sigma (a)) (applyTypeSubst sigma (b)))
-applyTypeSubst sigma  TBool = TBool
+applyTypeSubst sigma (TyVar i) =
+  case findSubst i sigma of
+    Nothing -> TyVar i
+    Just ty -> ty
+applyTypeSubst sigma (TyArrow t1 t2) =
+  let t1' = applyTypeSubst sigma t1 in
+  let t2' = applyTypeSubst sigma t2 in
+  TyArrow t1' t2'
+applyTypeSubst _ TBool = TBool
 
--- composeTypeSubst :: TypeSubst -> TypeSubst -> TypeSubst
--- composeTypeSubst sigma1 sigma2 = let t = getSub sigma1 in 
+composeTypeSubst :: TypeSubst -> TypeSubst -> TypeSubst
+composeTypeSubst sigma1 [] = sigma1
+composeTypeSubst sigma1 ((i, ty) : xs) =
+  case ty of
+    TyVar n ->
+      case findSubst n sigma1 of
+        Just ty' -> composeTypeSubst ((i, ty') : sigma1) xs
+        Nothing -> composeTypeSubst ((i, ty) : sigma1) xs
+    _ -> composeTypeSubst ((i, ty) : sigma1) xs
 
+-- Question 12 [6pts]: Implement the unification algorithm from class. It
+-- should take a set of TypeConstraints as input, and return the most
+-- general TypeSubst satisfying those constraints, if one
+-- exists. (This question is worth the equivalent of 10 "normal"
+-- questions.)
+
+fv :: SimpleType -> [Int]
+fv TBool = []
+fv (TyVar i) = [i]
+fv (TyArrow t1 t2) = fv t1 ++ fv t2
+
+
+unify :: TypeConstraints -> Except () TypeSubst
+unify [] = return []
+unify ((TypeEq s t) : cs)
+  | s == t = unify cs
+  | TyVar x <- s, not (x `elem` fv t) =
+      let x_to_t = [(x, t)] in
+      let cs' = map (\ (TypeEq t1 t2) ->
+                       let t1' = applyTypeSubst x_to_t t1 in
+                       let t2' = applyTypeSubst x_to_t t2 in
+                         TypeEq t1 t2'
+                    ) cs in
+        do
+          sigma1 <- unify cs'
+          return $ composeTypeSubst sigma1 x_to_t
+  | TyVar x <- t, not (x `elem` fv s) =
+      let subst = [(x, s)] in
+      let cs' = map (\ (TypeEq t1 t2) ->
+                       let t1' = applyTypeSubst subst t1 in
+                       let t2' = applyTypeSubst subst t2 in
+                         TypeEq t1' t2
+                    ) cs in
+        do
+          sigma1 <- unify cs'
+          return $ composeTypeSubst sigma1 subst
+  | TyArrow s1 s2 <- s, TyArrow t1 t2 <- t =
+      unify (cs ++ [TypeEq s1 t1, TypeEq s2 t2])
+unify _ = throwError ()
+
+
+-- Question 13 [5pts]: Combine your answers to Question 13 with
+-- runInferConstraints to build a type inference function that takes a
+-- simply-typed lambda term, e, and returns the principal type of e in
+-- the empty typing context.  Note: you'll need to give
+-- runInferConstraints an appropriately large value for fresh
+-- variables. (This question is worth the equivalent of 3 "normal"
+-- questions.)
+
+maxVar (STVar _) = 0
+maxVar (Lambda _ t e) = max (maximum (fv t)) (maxVar e)
+maxVar (App t1 t2) = max (maxVar t1) (maxVar t2)
+maxVar (BoolExp _) = 0
+maxVar (IfExp t1 t2 t3) =
+  let n1 = maxVar t1 in
+  let n2 = maxVar t2 in
+  let n3 = maxVar t3 in
+    maximum [n1, n2, n3]
+
+inferType :: STLCExp -> Maybe SimpleType
+inferType exp =
+  let n = maxVar exp + 1in
+    case runInferConstraints n [] exp of
+      Left _ -> Nothing
+      Right (ty, tc) ->
+        case runExcept $ unify tc of
+          Left _ -> Nothing
+          Right subst -> Just $ applyTypeSubst subst ty
+
+-- inferType lamExp1 should evaluate to: Just ((X2 -> (X11 -> X12)) -> ((X2 -> X11) -> (X2 -> X12)))
+-- inferType lamExp2 should evaluate to: Nothing
+
+-- Part 3: Property-Based Testing [10pts]
 
 -- Question 14 [2pts]: Write a generator that generates lists of at
 -- most 100 random elements:
 
 genBoundedList :: (Arbitrary a) => Gen [a]
-genBoundedList =  
-  sized $
-    \n -> do
-      k <- choose (0, n)
-      sequence [ arbitrary | _ <- [1..k] ]
+genBoundedList =
+  sized $ \ n -> do
+  k <- choose (0, n)
+  sequence [ arbitrary | _ <- [1..k] ]
 
 -- Question 15 [1pts]: Write a predicate that encodes the fact that
 -- the reverse is involutive, i.e. reversining a list twice should
 -- produce the original list.
 propRevInvolutive :: [Int] -> Bool
-propRevInvolutive xs = xs == (reverse(reverse xs))
+propRevInvolutive l = reverse (reverse l) == l
 
 -- Question 16 [1pts]: Write a predicate that encodes the fact that
 -- the length of the list built by appending two lists together is the
 -- same as the sum of the lengths of the individual lists.
 propLengthApp :: [Int] -> [Int] -> Bool
-propLengthApp xs ys = (length xs) + (length ys) == (length (xs++ys))
+propLengthApp l1 l2 = length (l1 ++ l2) == length l1 + length l2
 
 -- Question 17 [1pts]: Write a predicate that encodes the fact that an
 -- element is a member of the concatenation of two lists if and only
 -- if it is an element of one of the individual lists.
-
 propMemApp :: Int -> [Int] -> [Int] -> Bool
-propMemApp x xs ys =  ((isMem x xs) || (isMem x ys)) == isMem x (xs++ys)
+propMemApp x l1 l2 = (x `elem` (l1 ++ l2)) == (x `elem` l1 || x `elem` l2)
 
 -- Question 18 [2pts]: Write a generator that produces a random board
 -- that could result from a sequence of the function [playMove].
--- genConnectFourBoard :: Gen Board
--- genConnectFourBoard = error "Fill In Here"
 
-getTotalEntry::Board->Entry->Int
-getTotalEntry b a = foldr(\x acc -> foldr(\y val -> if y == a then val+1 else val) acc x ) 0 b
--- -- Question 19 [2pts]: A well-formed Connect Four board should either
--- -- have the same number of red and yellow checkers, or at most one
--- -- more red checker than yellow checkers. Write a predicate encoding
--- -- this property.
+-- playMove :: (MonadState (Board, Entry) m, MonadError () m) => Int -> m ()
+-- playMove' :: Board -> Entry -> Int -> Either () (Board, Entry)
+rep :: Int -> Board -> Entry -> [Int] -> Board
+rep 0 board en [] = board
+rep 0 board en (i:_) =
+  case playMove' board en i of
+    Left _ -> board
+    Right (b, _) -> b
+rep n board en (i:is) =
+  let board' = (playMove' board en i) in
+    case board' of
+      Left _ -> board
+      Right (b, e) -> rep (n-1) b e is
+
+genConnectFourBoard :: Gen Board
+genConnectFourBoard =
+  sized $ \ n ->
+  do
+    l <- sequence [ choose (0, 6) | _ <- [1 .. n] ]
+    return $ rep n initialBoard R l
+
+
+-- Question 19 [2pts]: A well-formed Connect Four board should either
+-- have the same number of red and yellow checkers, or at most one
+-- more red checker than yellow checkers. Write a predicate encoding
+-- this property.
+
+-- Left holds R count and right holds Y count
+redYellowCount :: Board -> (Int, Int)
+redYellowCount board = foldr (\ b acc ->
+                                foldr (\ e (r, y) ->
+                                         if e == R
+                                         then (r+1, y)
+                                         else
+                                           if e == Y then (r, y+1) else (r, y)) acc b ) (0, 0) board
 
 propWellFormedBoard :: Board -> Bool
-propWellFormedBoard b = getTotalEntry b R == getTotalEntry b Y
+propWellFormedBoard board =
+  let (r, y) = redYellowCount board in
+  (r == y) || (r == y + 1)
 
+-- instance Arbitrary Board where
+--   arbitrary b = genConnectFourBoard
 
-main :: IO ()
-main = print "HI"
+-- Question 20 [1pts]: Use your answers to questions 18+19 to test
+-- your implementation of [playMove] from part two.
+testPlayMove :: IO ()
+testPlayMove =
+  quickCheck $ forAll genConnectFourBoard propWellFormedBoard
+
+main = print $ "Does anyone read this line?"
